@@ -5,8 +5,9 @@ using UnityEngine.UI;
 
 public class TileManager : MonoBehaviour
 {
-
     public static TileManager tileManagerInstance;
+
+    public GameController gameController;
 
     //Grid Variables 
     public GameObject[,] grid;
@@ -17,10 +18,13 @@ public class TileManager : MonoBehaviour
 
     public GameObject emptyTilePrefab;
 
-
     private int GridRowSize;
     private int GridColumnSize;
 
+    public int remainingScans = 8;
+    public int remainingExtracts = 3;
+
+    public int resourcesCollected;
 
     private void Awake()
     {
@@ -61,7 +65,6 @@ public class TileManager : MonoBehaviour
                 float posX = (startPosition.position.x) + col * tileSize;
               
                 grid[row, col] = SpawnEmptyTile(row, col, posX, posY);
-                
             }
         }
         SpawnMaxResourceTile();
@@ -158,11 +161,11 @@ public class TileManager : MonoBehaviour
     {
         List<GameObject> revealTiles = new List<GameObject>();
 
-        int rowStart = (selectedTileRow - 2);
-        int rowEnd = (selectedTileRow + 2);
+        int rowStart = (selectedTileRow - 1);
+        int rowEnd = (selectedTileRow + 1);
 
-        int colStart = (selectedTileCol - 2);
-        int colEnd = (selectedTileCol + 2);
+        int colStart = (selectedTileCol - 1);
+        int colEnd = (selectedTileCol + 1);
 
         Debug.Log("Selected Row: " + selectedTileRow);
         Debug.Log("Selected Column: + " + selectedTileCol);
@@ -175,10 +178,6 @@ public class TileManager : MonoBehaviour
         {
             for (int j = colStart; j <= colEnd; j++)
             {
-
-                Debug.Log("I :" + i + " J: " + j);
-
-
                 if (i >= 0 && i < GridRowSize && j >= 0 && j < GridColumnSize)
                 {
                     revealTiles.Add(grid[i, j]);
@@ -191,5 +190,50 @@ public class TileManager : MonoBehaviour
             Tile tileComp = tile.GetComponent<Tile>();
                 tileComp.RevealTile();
         }
+        remainingScans -= 1;
+    }
+
+
+    public void ExtractSurroundingTiles(int selectedTileRow, int selectedTileCol)
+    {
+        resourcesCollected += grid[selectedTileRow, selectedTileCol].GetComponent<Tile>().ExtractResoures();
+
+        List<GameObject> degradeTiles = new List<GameObject>();
+
+        int rowStart = (selectedTileRow - 1);
+        int rowEnd = (selectedTileRow + 1);
+
+        int colStart = (selectedTileCol - 1);
+        int colEnd = (selectedTileCol + 1);
+
+        for (int i = rowStart; i <= rowEnd; i++)
+        {
+            for (int j = colStart; j <= colEnd; j++)
+            {
+                if (i >= 0 && i < GridRowSize && j >= 0 && j < GridColumnSize)
+                {
+                    degradeTiles.Add(grid[i, j]);
+                }
+            }
+        }
+
+        foreach (GameObject tile in degradeTiles)
+        {
+            Tile tileComp = tile.GetComponent<Tile>();
+            tileComp.DegradeTile();
+        }
+
+        remainingExtracts -= 1;
+
+        if (remainingExtracts == 0)
+        {
+            StartCoroutine(MoveToEndState());
+        }
+    }
+
+    public IEnumerator MoveToEndState()
+    {
+        yield return new WaitForSeconds(1.5f);
+        gameController.stateMachine.ChangeState(GameStateId.EndState);
     }
 }

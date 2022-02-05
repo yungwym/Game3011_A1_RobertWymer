@@ -15,6 +15,7 @@ public class BeginState : GameState
 
        gameController.startCanvas.enabled = true;
        gameController.gameCanvas.enabled = false;
+       gameController.endCanvas.enabled = false;
     }
 
     public void Update(GameController gameController)

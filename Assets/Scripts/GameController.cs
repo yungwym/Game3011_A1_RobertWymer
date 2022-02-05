@@ -2,11 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GameController : MonoBehaviour
 {
     //Tile Manager
     public TileManager tileManager;
+
+    public GameObject GridArea;
 
     //State Machine Variables 
     public StateMachine stateMachine;
@@ -15,8 +18,20 @@ public class GameController : MonoBehaviour
     //UI Objects
     public Canvas startCanvas;
     public Canvas gameCanvas;
+    public Canvas endCanvas;
+
     public GameObject scanModeButton;
     public GameObject extractModeButton;
+
+    public GameObject scanText;
+    public GameObject scanNumText;
+
+    public GameObject extractText;
+    public GameObject extractNumText;
+
+    public TextMeshProUGUI resourceNumText;
+
+    public TextMeshProUGUI finalResourceText;
 
     // Start is called before the first frame update
     void Start()
@@ -29,6 +44,7 @@ public class GameController : MonoBehaviour
         stateMachine.RegisterState(new IdleState());
         stateMachine.RegisterState(new ScanState());
         stateMachine.RegisterState(new ExtractState());
+        stateMachine.RegisterState(new EndState());
         stateMachine.ChangeState(initialState);
     }
 
@@ -40,12 +56,12 @@ public class GameController : MonoBehaviour
 
     public void EnterScanMode()
     {
-
+        stateMachine.ChangeState(GameStateId.ScanState);
     }
 
     public void EnterExtractMode()
     {
-
+        stateMachine.ChangeState(GameStateId.ExtractState);
     }
 
 

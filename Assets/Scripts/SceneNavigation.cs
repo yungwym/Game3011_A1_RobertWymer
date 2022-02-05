@@ -14,4 +14,14 @@ public class SceneNavigation : MonoBehaviour
     {
         Application.Quit();
     }
+
+    public void LoadMainMenu()
+    {
+        SceneManager.LoadScene("StartScene");
+    }
+
+    public void LoadInstructionMenu()
+    {
+        SceneManager.LoadScene("InstructionScene");
+    }
 }

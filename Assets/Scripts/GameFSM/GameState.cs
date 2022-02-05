@@ -7,7 +7,8 @@ public enum GameStateId
     BeginState,
     IdleState,
     ScanState,
-    ExtractState
+    ExtractState,
+    EndState
 }
 
 public interface GameState

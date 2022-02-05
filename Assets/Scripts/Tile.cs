@@ -55,18 +55,29 @@ public class Tile : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-        if (Input.GetMouseButtonDown(0))
-        {
-            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 mousePos = new Vector2(mousePosition.x, mousePosition.y);
 
-            if (boxCollider2D.bounds.Contains(mousePos))
+        GameStateId gameStateId = tileManager.gameController.stateMachine.currentState;
+
+        if (gameStateId != GameStateId.IdleState)
+        {
+            if (Input.GetMouseButtonDown(0))
             {
-                tileManager.RevealSurroundingTiles(GetRow(), GetColumn());
+                Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector2 mousePos = new Vector2(mousePosition.x, mousePosition.y);
+
+                if (boxCollider2D.bounds.Contains(mousePos))
+                {
+                    if (gameStateId == GameStateId.ScanState && tileManager.remainingScans > 0)
+                    {
+                        tileManager.RevealSurroundingTiles(GetRow(), GetColumn());
+                    }
+                    else if (gameStateId == GameStateId.ExtractState && tileManager.remainingExtracts > 0)
+                    {
+                        tileManager.ExtractSurroundingTiles(GetRow(), GetColumn());
+                    }
+                }
             }
         }
-
     }
 
     public void SetRowAndColumn(int row, int column)
@@ -90,6 +101,8 @@ public class Tile : MonoBehaviour
         SetRowAndColumn(row, col);
 
         spriteRenderer.color = MinimumColor;
+        resourceValue = 25;
+
         tileType = TileType.MIN;
         resourceIconSpriteRender.sprite = minResourceSprite;
     }
@@ -97,6 +110,7 @@ public class Tile : MonoBehaviour
     public void ChangeToMax()
     {
         spriteRenderer.color = MaxColor;
+        resourceValue = 400;
         tileType = TileType.MAX;
         resourceIconSpriteRender.sprite = maxResourceSprite;
     }
@@ -104,6 +118,7 @@ public class Tile : MonoBehaviour
     public void ChangeToHalf()
     {
         spriteRenderer.color = HalfColor;
+        resourceValue = 200;
         tileType = TileType.HALF;
         resourceIconSpriteRender.sprite = halfResourceSprite;
     }
@@ -112,12 +127,43 @@ public class Tile : MonoBehaviour
     {
         spriteRenderer.color = QuartColor;
         tileType = TileType.QUART;
+        resourceValue = 100;
         resourceIconSpriteRender.sprite = quartResourceSprite;
+    }
+
+    public void ChangeToMinimal()
+    {
+        spriteRenderer.color = MinimumColor;
+        resourceValue = 25;
+        tileType = TileType.QUART;
+        resourceIconSpriteRender.sprite = minResourceSprite;
     }
 
     public void RevealTile()
     {
         coverGameObject.SetActive(false);
         Revealed = true;
+    }
+
+    public int ExtractResoures()
+    {
+        //DegradeTile();
+        return resourceValue;
+    }
+
+    public void DegradeTile()
+    {
+        if (tileType == TileType.MAX)
+        {
+            ChangeToHalf();
+        }
+        else if (tileType == TileType.HALF)
+        {
+            ChangeToQuart();
+        }
+        else if (tileType == TileType.QUART)
+        {
+            ChangeToMinimal();
+        }
     }
 }
