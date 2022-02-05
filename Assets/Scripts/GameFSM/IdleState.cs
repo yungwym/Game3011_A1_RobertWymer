@@ -17,7 +17,10 @@ public class IdleState : GameState
         gameController.gameCanvas.enabled = true;
         gameController.startCanvas.enabled = false;
 
-        gameController.extractModeButton.SetActive(false); 
+        gameController.extractModeButton.SetActive(false);
+
+
+        gameController.tileManager.GenerateEmptyGrid(32,64);
     }
 
     public void Update(GameController gameController)

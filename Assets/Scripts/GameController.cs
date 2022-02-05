@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
+    //Tile Manager
+    public TileManager tileManager;
+
     //State Machine Variables 
     public StateMachine stateMachine;
     public GameStateId initialState;
@@ -44,4 +47,9 @@ public class GameController : MonoBehaviour
     {
 
     }
+
+
+    
+
+
 }
