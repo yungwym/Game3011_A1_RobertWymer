@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 public class TileManager : MonoBehaviour
 {
+
+    public static TileManager tileManagerInstance;
+
     //Grid Variables 
     public GameObject[,] grid;
 
@@ -13,7 +16,22 @@ public class TileManager : MonoBehaviour
     public Transform startPosition;
 
     public GameObject emptyTilePrefab;
-  
+
+
+    private int GridRowSize;
+    private int GridColumnSize;
+
+
+    private void Awake()
+    {
+        if (tileManagerInstance != null)
+        {
+            return;
+        }
+        tileManagerInstance = this;
+    }
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -28,6 +46,9 @@ public class TileManager : MonoBehaviour
 
     public void GenerateEmptyGrid(int rows, int columns)
     {
+        GridRowSize = rows;
+        GridColumnSize = columns;
+
         grid = new GameObject[rows, columns];
 
         for (int row = 0; row < rows; row++)
@@ -39,16 +60,17 @@ public class TileManager : MonoBehaviour
                 float posY = (startPosition.position.y) - row * tileSize;
                 float posX = (startPosition.position.x) + col * tileSize;
               
-                grid[row, col] = SpawnEmptyTile(posX, posY);
+                grid[row, col] = SpawnEmptyTile(row, col, posX, posY);
+                
             }
         }
         SpawnMaxResourceTile();
     }
 
-    public GameObject SpawnEmptyTile(float x, float y)
+    public GameObject SpawnEmptyTile(int row, int col, float x, float y)
     {
         GameObject newTile = Instantiate(emptyTilePrefab, new Vector2(x, y), Quaternion.identity);
-        newTile.GetComponent<Tile>().SetToMinimal();
+        newTile.GetComponent<Tile>().SetToMinimal(row, col);
         newTile.transform.parent = gameObject.transform;
         return newTile;
     }
@@ -131,18 +153,43 @@ public class TileManager : MonoBehaviour
         }
     }
 
-    //TODO:: May not need later as initial Grid Generation can just set all tiles to mininal by default 
-    public void SpawnMinimalResourceTile()
-    {
 
-    }
-
-    public void IterateGrid()
+    public void RevealSurroundingTiles(int selectedTileRow, int selectedTileCol)
     {
-        foreach (GameObject g in grid)
+        List<GameObject> revealTiles = new List<GameObject>();
+
+        int rowStart = (selectedTileRow - 2);
+        int rowEnd = (selectedTileRow + 2);
+
+        int colStart = (selectedTileCol - 2);
+        int colEnd = (selectedTileCol + 2);
+
+        Debug.Log("Selected Row: " + selectedTileRow);
+        Debug.Log("Selected Column: + " + selectedTileCol);
+
+        Debug.Log("Row Start: " + rowStart + " Row End: " + rowEnd);
+        Debug.Log("Col Start: " + colStart + " Col End: " + colEnd);
+
+
+        for (int i = rowStart; i <= rowEnd; i++)
         {
-            //Debug.Log(g.GetComponent<Tile>().tileType);
+            for (int j = colStart; j <= colEnd; j++)
+            {
+
+                Debug.Log("I :" + i + " J: " + j);
+
+
+                if (i >= 0 && i < GridRowSize && j >= 0 && j < GridColumnSize)
+                {
+                    revealTiles.Add(grid[i, j]);
+                }
+            }
+        }
+
+        foreach (GameObject tile in revealTiles)
+        {
+            Tile tileComp = tile.GetComponent<Tile>();
+                tileComp.RevealTile();
         }
     }
-
 }
